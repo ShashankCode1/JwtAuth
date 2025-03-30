@@ -35,23 +35,23 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ApiResponse<JsonNode> registerUser(RegisterDTO userRequest) {
+    public ApiResponse<JsonNode> registerUser(RegisterDTO registerRequest) {
         LOGGER.info("Started UserServiceImpl.registerUser at: {}", System.currentTimeMillis());
 
         // Check if email is already registered
-        if (userRepository.existsByEmail(userRequest.getEmail())) {
+        if (userRepository.existsByEmail(registerRequest.getEmail())) {
             throw new ApiException(
                     HttpStatus.CONFLICT.value(),
                     EMAIL_ALREADY_EXISTS_ERROR,
-                    EMAIL_ALREADY_EXISTS_ERROR.getMessage() + " : " + userRequest.getEmail(),
+                    EMAIL_ALREADY_EXISTS_ERROR.getMessage() + " : " + registerRequest.getEmail(),
                     LOGGER);
         }
 
         // Convert DTO to POJO and encrypt password
         UserPOJO newUser = new UserPOJO();
-        newUser.setUsername(userRequest.getEmail().substring(0, userRequest.getEmail().indexOf('@')));
-        newUser.setEmail(userRequest.getEmail());
-        newUser.setPassword(passwordEncoder.encode(userRequest.getPassword()));
+        newUser.setUsername(registerRequest.getEmail().substring(0, registerRequest.getEmail().indexOf('@')));
+        newUser.setEmail(registerRequest.getEmail());
+        newUser.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
 
         // Registering User
         ObjectNode response = objectMapper.createObjectNode();
@@ -63,7 +63,7 @@ public class UserServiceImpl implements UserService {
             throw new ApiException(
                     HttpStatus.INTERNAL_SERVER_ERROR.value(),
                     USER_REGISTRATION_FAILED,
-                    USER_REGISTRATION_FAILED.getMessage() + " : " + userRequest,
+                    USER_REGISTRATION_FAILED.getMessage() + " : " + registerRequest,
                     LOGGER
             );
         }

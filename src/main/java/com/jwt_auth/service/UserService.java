@@ -8,6 +8,6 @@ import org.springframework.stereotype.Component;
 @Component
 public interface UserService {
 
-    ApiResponse<JsonNode> registerUser(RegisterDTO userRequest);
+    ApiResponse<JsonNode> registerUser(RegisterDTO registerRequest);
 
 }

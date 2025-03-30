@@ -27,10 +27,10 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<ApiResponse<JsonNode>> registerUser(@Valid @RequestBody RegisterDTO userRequest) {
+    public ResponseEntity<ApiResponse<JsonNode>> registerUser(@Valid @RequestBody RegisterDTO registerRequest) {
         LOGGER.info("Started UserController.registerUser at: {}", System.currentTimeMillis());
-        LOGGER.info("Received userRequest: {}", userRequest);
-        ApiResponse<JsonNode> response = userService.registerUser(userRequest);
+        LOGGER.info("Received registerRequest: {}", registerRequest);
+        ApiResponse<JsonNode> response = userService.registerUser(registerRequest);
         LOGGER.info("Received response: {}", response);
         LOGGER.info("Ended UserController.registerUser at: {}", System.currentTimeMillis());
         return ResponseEntity.status(response.getStatus()).body(response);
