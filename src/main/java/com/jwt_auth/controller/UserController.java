@@ -1,7 +1,7 @@
 package com.jwt_auth.controller;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.jwt_auth.dto.UserDTO;
+import com.jwt_auth.dto.RegisterDTO;
 import com.jwt_auth.model.ApiResponse;
 import com.jwt_auth.service.UserService;
 import jakarta.validation.Valid;
@@ -27,7 +27,7 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<ApiResponse<JsonNode>> registerUser(@Valid @RequestBody UserDTO userRequest) {
+    public ResponseEntity<ApiResponse<JsonNode>> registerUser(@Valid @RequestBody RegisterDTO userRequest) {
         LOGGER.info("Started UserController.registerUser at: {}", System.currentTimeMillis());
         LOGGER.info("Received userRequest: {}", userRequest);
         ApiResponse<JsonNode> response = userService.registerUser(userRequest);

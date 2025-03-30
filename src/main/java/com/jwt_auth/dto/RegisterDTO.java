@@ -10,7 +10,7 @@ import lombok.*;
 @Getter
 @Setter
 @ToString
-public class UserDTO {
+public class RegisterDTO {
 
     @NotBlank(message = "Email is required")
     @Email(message = "Email is invalid")

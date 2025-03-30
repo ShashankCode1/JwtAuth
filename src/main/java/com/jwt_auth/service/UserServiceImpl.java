@@ -3,7 +3,7 @@ package com.jwt_auth.service;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.jwt_auth.dto.UserDTO;
+import com.jwt_auth.dto.RegisterDTO;
 import com.jwt_auth.model.ApiResponse;
 import com.jwt_auth.model.UserPOJO;
 import com.jwt_auth.repository.UserRepository;
@@ -35,7 +35,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ApiResponse<JsonNode> registerUser(UserDTO userRequest) {
+    public ApiResponse<JsonNode> registerUser(RegisterDTO userRequest) {
         LOGGER.info("Started UserServiceImpl.registerUser at: {}", System.currentTimeMillis());
 
         // Check if email is already registered
