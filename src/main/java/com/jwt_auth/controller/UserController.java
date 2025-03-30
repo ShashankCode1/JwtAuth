@@ -1,6 +1,7 @@
 package com.jwt_auth.controller;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.jwt_auth.dto.LoginDTO;
 import com.jwt_auth.dto.RegisterDTO;
 import com.jwt_auth.model.ApiResponse;
 import com.jwt_auth.service.UserService;
@@ -31,8 +32,16 @@ public class UserController {
         LOGGER.info("Started UserController.registerUser at: {}", System.currentTimeMillis());
         LOGGER.info("Received registerRequest: {}", registerRequest);
         ApiResponse<JsonNode> response = userService.registerUser(registerRequest);
-        LOGGER.info("Received response: {}", response);
         LOGGER.info("Ended UserController.registerUser at: {}", System.currentTimeMillis());
+        return ResponseEntity.status(response.getStatus()).body(response);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<ApiResponse<JsonNode>> loginUser(@Valid @RequestBody LoginDTO loginRequest) {
+        LOGGER.info("Started UserController.loginUser at: {}", System.currentTimeMillis());
+        LOGGER.info("Received loginRequest: {}", loginRequest);
+        ApiResponse<JsonNode> response = userService.loginUser(loginRequest);
+        LOGGER.info("Ended UserController.loginUser at: {}", System.currentTimeMillis());
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 

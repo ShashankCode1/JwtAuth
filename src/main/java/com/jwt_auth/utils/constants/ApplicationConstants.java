@@ -5,6 +5,7 @@ public class ApplicationConstants {
     public static final String VALIDATION_FAILED = "Validation Failed";
     public static final String MALFORMED_REQUEST = "Malformed Request";
     public static final String RESPONSE = "response";
+    public static final String JWT_TOKEN = "jwtToken";
 
     // Private constructor to prevent instantiation
     private ApplicationConstants() {

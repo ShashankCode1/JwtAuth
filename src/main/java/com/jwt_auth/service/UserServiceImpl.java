@@ -3,11 +3,13 @@ package com.jwt_auth.service;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.jwt_auth.dto.LoginDTO;
 import com.jwt_auth.dto.RegisterDTO;
 import com.jwt_auth.model.ApiResponse;
 import com.jwt_auth.model.UserPOJO;
 import com.jwt_auth.repository.UserRepository;
 import com.jwt_auth.utils.exceptions.ApiException;
+import com.jwt_auth.utils.jwt.JwtUtilService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,9 +18,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import static com.jwt_auth.utils.constants.ApplicationConstants.JWT_TOKEN;
 import static com.jwt_auth.utils.constants.ApplicationConstants.RESPONSE;
-import static com.jwt_auth.utils.enums.StatusCodeEnum.EMAIL_ALREADY_EXISTS_ERROR;
-import static com.jwt_auth.utils.enums.StatusCodeEnum.USER_REGISTRATION_FAILED;
+import static com.jwt_auth.utils.enums.StatusCodeEnum.*;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -28,10 +30,12 @@ public class UserServiceImpl implements UserService {
     private static final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     private final UserRepository userRepository;
+    private final JwtUtilService jwtUtilService;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository) {
+    public UserServiceImpl(UserRepository userRepository, JwtUtilService jwtUtilService) {
         this.userRepository = userRepository;
+        this.jwtUtilService = jwtUtilService;
     }
 
     @Override
@@ -68,8 +72,43 @@ public class UserServiceImpl implements UserService {
             );
         }
 
-        LOGGER.info("Final response: {}", response);
+        LOGGER.info("Final response for registerUser: {}", response);
         LOGGER.info("Ended UserServiceImpl.registerUser at: {}", System.currentTimeMillis());
         return new ApiResponse<>(HttpStatus.CREATED.value(), HttpStatus.CREATED.getReasonPhrase(), response);
+    }
+
+    @Override
+    public ApiResponse<JsonNode> loginUser(LoginDTO loginRequest) {
+        LOGGER.info("Started UserServiceImpl.loginUser at: {}", System.currentTimeMillis());
+
+        // Find user by email
+        UserPOJO user = userRepository.findByEmail(loginRequest.getEmail())
+                .orElseThrow(() -> new ApiException(
+                        HttpStatus.UNAUTHORIZED.value(),
+                        EMAIL_NOT_FOUND,
+                        EMAIL_NOT_FOUND.getMessage() + " : " + loginRequest.getEmail(),
+                        LOGGER
+                ));
+
+        // Validate password
+        if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
+            throw new ApiException(
+                    HttpStatus.UNAUTHORIZED.value(),
+                    PASSWORD_NOT_MATCHED,
+                    PASSWORD_NOT_MATCHED.getMessage() + " : " + loginRequest.getPassword(),
+                    LOGGER
+            );
+        }
+
+        // Generate JWT Token
+        String jwtToken = jwtUtilService.generateJwtToken(user);
+        LOGGER.info("Generated JWT token: {}", jwtToken);
+
+        ObjectNode response = objectMapper.createObjectNode();
+        response.putPOJO("user", user);
+        response.put(JWT_TOKEN, jwtToken);
+        LOGGER.info("Final response for loginUser: {}", response);
+        LOGGER.info("Ended UserServiceImpl.loginUser at: {}", System.currentTimeMillis());
+        return new ApiResponse<>(HttpStatus.OK.value(), HttpStatus.OK.getReasonPhrase(), response);
     }
 }
