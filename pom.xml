@@ -18,7 +18,10 @@
         <license/>
     </licenses>
     <developers>
-        <developer/>
+        <developer>
+            <name>Shashank Nadikatla</name>
+            <email>shashanknadikatla@gmail.com</email>
+        </developer>
     </developers>
     <scm>
         <connection/>
