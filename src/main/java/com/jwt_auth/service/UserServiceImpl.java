@@ -18,8 +18,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import static com.jwt_auth.utils.constants.ApplicationConstants.JWT_TOKEN;
-import static com.jwt_auth.utils.constants.ApplicationConstants.RESPONSE;
+import static com.jwt_auth.utils.constants.ApplicationConstants.*;
 import static com.jwt_auth.utils.enums.StatusCodeEnum.*;
 
 @Service
@@ -61,7 +60,7 @@ public class UserServiceImpl implements UserService {
         ObjectNode response = objectMapper.createObjectNode();
         try {
             UserPOJO registeredUser = userRepository.save(newUser);
-            response.putPOJO("user", registeredUser);
+            response.putPOJO(USER, registeredUser);
             response.put(RESPONSE, "User registered successfully");
         } catch (Exception e) {
             throw new ApiException(
@@ -84,7 +83,7 @@ public class UserServiceImpl implements UserService {
         // Find user by email
         UserPOJO user = userRepository.findByEmail(loginRequest.getEmail())
                 .orElseThrow(() -> new ApiException(
-                        HttpStatus.UNAUTHORIZED.value(),
+                        HttpStatus.NOT_FOUND.value(),
                         EMAIL_NOT_FOUND,
                         EMAIL_NOT_FOUND.getMessage() + " : " + loginRequest.getEmail(),
                         LOGGER
@@ -101,14 +100,44 @@ public class UserServiceImpl implements UserService {
         }
 
         // Generate JWT Token
-        String jwtToken = jwtUtilService.generateJwtToken(user);
+        String jwtToken = jwtUtilService.generateJwtToken(user.getEmail());
         LOGGER.info("Generated JWT token: {}", jwtToken);
 
         ObjectNode response = objectMapper.createObjectNode();
-        response.putPOJO("user", user);
+        response.putPOJO(USER, user);
         response.put(JWT_TOKEN, jwtToken);
         LOGGER.info("Final response for loginUser: {}", response);
         LOGGER.info("Ended UserServiceImpl.loginUser at: {}", System.currentTimeMillis());
+        return new ApiResponse<>(HttpStatus.OK.value(), HttpStatus.OK.getReasonPhrase(), response);
+    }
+
+    @Override
+    public ApiResponse<JsonNode> getUserProfile(String token) {
+        LOGGER.info("Started UserServiceImpl.getUserProfile at: {}", System.currentTimeMillis());
+
+        ObjectNode response = objectMapper.createObjectNode();
+        try {
+            String email = jwtUtilService.extractEmailFromToken(token.substring(7));
+            UserPOJO user = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new ApiException(
+                            HttpStatus.NOT_FOUND.value(),
+                            EMAIL_NOT_FOUND,
+                            EMAIL_NOT_FOUND.getMessage() + " : " + email,
+                            LOGGER
+                    ));
+
+            response.putPOJO(USER, user);
+        } catch (Exception e) {
+            throw new ApiException(
+                    HttpStatus.UNAUTHORIZED.value(),
+                    INVALID_JWT_TOKEN,
+                    INVALID_JWT_TOKEN.getMessage(),
+                    LOGGER
+            );
+        }
+
+        LOGGER.info("Final response for getUserProfile: {}", response);
+        LOGGER.info("Ended UserServiceImpl.getUserProfile at: {}", System.currentTimeMillis());
         return new ApiResponse<>(HttpStatus.OK.value(), HttpStatus.OK.getReasonPhrase(), response);
     }
 }

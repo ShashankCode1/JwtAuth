@@ -13,4 +13,5 @@ public interface UserService {
 
     ApiResponse<JsonNode> loginUser(LoginDTO loginRequest);
 
+    ApiResponse<JsonNode> getUserProfile(String token);
 }

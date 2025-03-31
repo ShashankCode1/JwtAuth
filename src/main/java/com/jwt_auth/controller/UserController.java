@@ -10,10 +10,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import static com.jwt_auth.utils.constants.ApplicationConstants.AUTHORIZATION;
 
 @RestController
 @RequestMapping("/user")
@@ -45,4 +44,12 @@ public class UserController {
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 
+    @GetMapping("/profile")
+    public ResponseEntity<ApiResponse<JsonNode>> getUserProfile(@RequestHeader(AUTHORIZATION) String token) {
+        LOGGER.info("Started UserController.getUserProfile at: {}", System.currentTimeMillis());
+        LOGGER.info("Received JWT token: {}", token);
+        ApiResponse<JsonNode> response = userService.getUserProfile(token);
+        LOGGER.info("Ended UserController.getUserProfile at: {}", System.currentTimeMillis());
+        return ResponseEntity.status(response.getStatus()).body(response);
+    }
 }

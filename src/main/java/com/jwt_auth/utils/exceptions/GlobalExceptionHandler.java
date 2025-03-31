@@ -1,6 +1,10 @@
 package com.jwt_auth.utils.exceptions;
 
 import com.jwt_auth.model.ApiResponse;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.security.SignatureException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -59,5 +63,49 @@ public class GlobalExceptionHandler {
                         ex.getMessage(),
                         Map.of(RESPONSE, ex.getMessage())
                 ));
+    }
+
+    // Handle JwtException errors
+    @ExceptionHandler(JwtException.class)
+    public ResponseEntity<ApiResponse<Map<String, String>>> handleJwtException(JwtException ex) {
+        ApiResponse<Map<String, String>> response = new ApiResponse<>(
+                HttpStatus.UNAUTHORIZED.value(),
+                INVALID_AUTH_TOKEN,
+                Map.of(RESPONSE, ex.getMessage())
+        );
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+    }
+
+    // Handle Malformed Jwt Token errors
+    @ExceptionHandler(MalformedJwtException.class)
+    public ResponseEntity<ApiResponse<Map<String, String>>> handleMalformedJwtException(MalformedJwtException ex) {
+        ApiResponse<Map<String, String>> response = new ApiResponse<>(
+                HttpStatus.UNAUTHORIZED.value(),
+                MALFORMED_AUTH_TOKEN,
+                Map.of(RESPONSE, ex.getMessage())
+        );
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+    }
+
+    // Handle Jwt Signature errors
+    @ExceptionHandler(SignatureException.class)
+    public ResponseEntity<ApiResponse<Map<String, String>>> handleSignatureException(SignatureException ex) {
+        ApiResponse<Map<String, String>> response = new ApiResponse<>(
+                HttpStatus.UNAUTHORIZED.value(),
+                INVALID_AUTH_SIGNATURE,
+                Map.of(RESPONSE, ex.getMessage())
+        );
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+    }
+
+    // Handle Jwt Token Expiration errors
+    @ExceptionHandler(ExpiredJwtException.class)
+    public ResponseEntity<ApiResponse<Map<String, String>>> handleExpiredJwtException(ExpiredJwtException ex) {
+        ApiResponse<Map<String, String>> response = new ApiResponse<>(
+                HttpStatus.UNAUTHORIZED.value(),
+                EXPIRED_AUTH_TOKEN,
+                Map.of(RESPONSE, ex.getMessage())
+        );
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
     }
 }
