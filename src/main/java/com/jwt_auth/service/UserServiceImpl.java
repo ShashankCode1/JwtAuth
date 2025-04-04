@@ -8,6 +8,7 @@ import com.jwt_auth.dto.RegisterDTO;
 import com.jwt_auth.model.ApiResponse;
 import com.jwt_auth.model.UserPOJO;
 import com.jwt_auth.repository.UserRepository;
+import com.jwt_auth.utils.UtilService;
 import com.jwt_auth.utils.exceptions.ApiException;
 import com.jwt_auth.utils.jwt.JwtUtilService;
 import org.slf4j.Logger;
@@ -30,16 +31,19 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final JwtUtilService jwtUtilService;
+    private final UtilService utilService;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, JwtUtilService jwtUtilService) {
+    public UserServiceImpl(
+            UserRepository userRepository, JwtUtilService jwtUtilService, UtilService utilService) {
         this.userRepository = userRepository;
         this.jwtUtilService = jwtUtilService;
+        this.utilService = utilService;
     }
 
     @Override
     public ApiResponse<JsonNode> registerUser(RegisterDTO registerRequest) {
-        LOGGER.info("Started UserServiceImpl.registerUser at: {}", System.currentTimeMillis());
+        LOGGER.info("Started UserServiceImpl.registerUser at: {}", utilService.getCurrentDateAndTime());
 
         // Check if email is already registered
         if (userRepository.existsByEmail(registerRequest.getEmail())) {
@@ -72,13 +76,13 @@ public class UserServiceImpl implements UserService {
         }
 
         LOGGER.info("Final response for registerUser: {}", response);
-        LOGGER.info("Ended UserServiceImpl.registerUser at: {}", System.currentTimeMillis());
+        LOGGER.info("Ended UserServiceImpl.registerUser at: {}", utilService.getCurrentDateAndTime());
         return new ApiResponse<>(HttpStatus.CREATED.value(), HttpStatus.CREATED.getReasonPhrase(), response);
     }
 
     @Override
     public ApiResponse<JsonNode> loginUser(LoginDTO loginRequest) {
-        LOGGER.info("Started UserServiceImpl.loginUser at: {}", System.currentTimeMillis());
+        LOGGER.info("Started UserServiceImpl.loginUser at: {}", utilService.getCurrentDateAndTime());
 
         // Find user by email
         UserPOJO user = userRepository.findByEmail(loginRequest.getEmail())
@@ -107,13 +111,13 @@ public class UserServiceImpl implements UserService {
         response.putPOJO(USER, user);
         response.put(JWT_TOKEN, jwtToken);
         LOGGER.info("Final response for loginUser: {}", response);
-        LOGGER.info("Ended UserServiceImpl.loginUser at: {}", System.currentTimeMillis());
+        LOGGER.info("Ended UserServiceImpl.loginUser at: {}", utilService.getCurrentDateAndTime());
         return new ApiResponse<>(HttpStatus.OK.value(), HttpStatus.OK.getReasonPhrase(), response);
     }
 
     @Override
     public ApiResponse<JsonNode> getUserProfile(String token) {
-        LOGGER.info("Started UserServiceImpl.getUserProfile at: {}", System.currentTimeMillis());
+        LOGGER.info("Started UserServiceImpl.getUserProfile at: {}", utilService.getCurrentDateAndTime());
 
         ObjectNode response = objectMapper.createObjectNode();
         try {
@@ -137,7 +141,7 @@ public class UserServiceImpl implements UserService {
         }
 
         LOGGER.info("Final response for getUserProfile: {}", response);
-        LOGGER.info("Ended UserServiceImpl.getUserProfile at: {}", System.currentTimeMillis());
+        LOGGER.info("Ended UserServiceImpl.getUserProfile at: {}", utilService.getCurrentDateAndTime());
         return new ApiResponse<>(HttpStatus.OK.value(), HttpStatus.OK.getReasonPhrase(), response);
     }
 }
