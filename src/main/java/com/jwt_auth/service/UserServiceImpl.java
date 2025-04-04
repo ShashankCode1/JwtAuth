@@ -19,7 +19,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import static com.jwt_auth.utils.constants.ApplicationConstants.*;
+import static com.jwt_auth.utils.constants.ApplicationConstants.JWT_TOKEN;
+import static com.jwt_auth.utils.constants.ApplicationConstants.USER;
 import static com.jwt_auth.utils.enums.StatusCodeEnum.*;
 
 @Service
@@ -65,7 +66,6 @@ public class UserServiceImpl implements UserService {
         try {
             UserPOJO registeredUser = userRepository.save(newUser);
             response.putPOJO(USER, registeredUser);
-            response.put(RESPONSE, "User registered successfully");
         } catch (Exception e) {
             throw new ApiException(
                     HttpStatus.INTERNAL_SERVER_ERROR.value(),
@@ -77,7 +77,11 @@ public class UserServiceImpl implements UserService {
 
         LOGGER.info("Final response for registerUser: {}", response);
         LOGGER.info("Ended UserServiceImpl.registerUser at: {}", utilService.getCurrentDateAndTime());
-        return new ApiResponse<>(HttpStatus.CREATED.value(), HttpStatus.CREATED.getReasonPhrase(), response);
+        return new ApiResponse<>(
+                HttpStatus.CREATED.value(),
+                USER_REGISTRATION_SUCCESS,
+                USER_REGISTRATION_SUCCESS.getMessage(),
+                response);
     }
 
     @Override
@@ -112,7 +116,11 @@ public class UserServiceImpl implements UserService {
         response.put(JWT_TOKEN, jwtToken);
         LOGGER.info("Final response for loginUser: {}", response);
         LOGGER.info("Ended UserServiceImpl.loginUser at: {}", utilService.getCurrentDateAndTime());
-        return new ApiResponse<>(HttpStatus.OK.value(), HttpStatus.OK.getReasonPhrase(), response);
+        return new ApiResponse<>(
+                HttpStatus.OK.value(),
+                USER_LOGGED_IN_SUCCESS,
+                USER_LOGGED_IN_SUCCESS.getMessage(),
+                response);
     }
 
     @Override
@@ -142,6 +150,10 @@ public class UserServiceImpl implements UserService {
 
         LOGGER.info("Final response for getUserProfile: {}", response);
         LOGGER.info("Ended UserServiceImpl.getUserProfile at: {}", utilService.getCurrentDateAndTime());
-        return new ApiResponse<>(HttpStatus.OK.value(), HttpStatus.OK.getReasonPhrase(), response);
+        return new ApiResponse<>(
+                HttpStatus.OK.value(),
+                GET_USER_PROFILE_SUCCESS,
+                GET_USER_PROFILE_SUCCESS.getMessage(),
+                response);
     }
 }

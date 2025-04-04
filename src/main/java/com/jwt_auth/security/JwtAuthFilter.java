@@ -26,7 +26,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.util.Collections;
 
-import static com.jwt_auth.utils.constants.ApplicationConstants.*;
+import static com.jwt_auth.utils.constants.ApplicationConstants.RESPONSE;
 import static com.jwt_auth.utils.enums.StatusCodeEnum.INVALID_JWT_TOKEN;
 import static com.jwt_auth.utils.enums.StatusCodeEnum.JWT_TOKEN_EXPIRED;
 
@@ -68,8 +68,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 LOGGER.info("JWT token has expired: {}", token);
                 ApiResponse<JsonNode> expiredJwtTokenResponse = new ApiResponse<>(
                         HttpStatus.UNAUTHORIZED.value(),
-                        EXPIRED_AUTH_TOKEN,
-                        objectMapper.createObjectNode().put(RESPONSE, JWT_TOKEN_EXPIRED.getMessage())
+                        JWT_TOKEN_EXPIRED,
+                        JWT_TOKEN_EXPIRED.getMessage(),
+                        objectMapper.createObjectNode().put(RESPONSE, JWT_TOKEN_EXPIRED.getMessage() + " : " + token)
                 );
                 response.setStatus(HttpStatus.UNAUTHORIZED.value());
                 response.getWriter().write(objectMapper.writeValueAsString(expiredJwtTokenResponse));
@@ -81,8 +82,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 LOGGER.info("Invalid JWT token: {}", token);
                 ApiResponse<JsonNode> invalidJwtTokenResponse = new ApiResponse<>(
                         HttpStatus.UNAUTHORIZED.value(),
-                        INVALID_AUTH_TOKEN,
-                        objectMapper.createObjectNode().put(RESPONSE, INVALID_JWT_TOKEN.getMessage())
+                        INVALID_JWT_TOKEN,
+                        INVALID_JWT_TOKEN.getMessage(),
+                        objectMapper.createObjectNode().put(RESPONSE, INVALID_JWT_TOKEN.getMessage() + " : " + token)
                 );
                 response.setStatus(HttpStatus.UNAUTHORIZED.value());
                 response.getWriter().write(objectMapper.writeValueAsString(invalidJwtTokenResponse));

@@ -17,7 +17,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.jwt_auth.utils.constants.ApplicationConstants.*;
+import static com.jwt_auth.utils.constants.ApplicationConstants.RESPONSE;
+import static com.jwt_auth.utils.enums.StatusCodeEnum.*;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -34,7 +35,8 @@ public class GlobalExceptionHandler {
 
         ApiResponse<Map<String, String>> response = new ApiResponse<>(
                 HttpStatus.BAD_REQUEST.value(),
-                VALIDATION_FAILED,
+                PAYLOAD_VALIDATION_FAILED,
+                PAYLOAD_VALIDATION_FAILED.getMessage(),
                 errors
         );
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
@@ -49,6 +51,7 @@ public class GlobalExceptionHandler {
         ApiResponse<Map<String, String>> response = new ApiResponse<>(
                 HttpStatus.BAD_REQUEST.value(),
                 MALFORMED_REQUEST,
+                MALFORMED_REQUEST.getMessage(),
                 Map.of(RESPONSE, "Invalid JSON format or incorrect data type")
         );
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
@@ -60,7 +63,8 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(ex.getStatus()).body(new ApiResponse<>(
                         ex.getStatus(),
-                        ex.getMessage(),
+                        ex.getStatusCodeEnum(),
+                        ex.getStatusCodeEnum().getMessage(),
                         Map.of(RESPONSE, ex.getMessage())
                 ));
     }
@@ -70,7 +74,8 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Map<String, String>>> handleJwtException(JwtException ex) {
         ApiResponse<Map<String, String>> response = new ApiResponse<>(
                 HttpStatus.UNAUTHORIZED.value(),
-                INVALID_AUTH_TOKEN,
+                INVALID_JWT_TOKEN,
+                INVALID_JWT_TOKEN.getMessage(),
                 Map.of(RESPONSE, ex.getMessage())
         );
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
@@ -81,7 +86,8 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Map<String, String>>> handleMalformedJwtException(MalformedJwtException ex) {
         ApiResponse<Map<String, String>> response = new ApiResponse<>(
                 HttpStatus.UNAUTHORIZED.value(),
-                MALFORMED_AUTH_TOKEN,
+                MALFORMED_JWT_TOKEN,
+                MALFORMED_JWT_TOKEN.getMessage(),
                 Map.of(RESPONSE, ex.getMessage())
         );
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
@@ -92,7 +98,8 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Map<String, String>>> handleSignatureException(SignatureException ex) {
         ApiResponse<Map<String, String>> response = new ApiResponse<>(
                 HttpStatus.UNAUTHORIZED.value(),
-                INVALID_AUTH_SIGNATURE,
+                INVALID_JWT_SIGNATURE,
+                INVALID_JWT_SIGNATURE.getMessage(),
                 Map.of(RESPONSE, ex.getMessage())
         );
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
@@ -103,7 +110,8 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Map<String, String>>> handleExpiredJwtException(ExpiredJwtException ex) {
         ApiResponse<Map<String, String>> response = new ApiResponse<>(
                 HttpStatus.UNAUTHORIZED.value(),
-                EXPIRED_AUTH_TOKEN,
+                JWT_TOKEN_EXPIRED,
+                JWT_TOKEN_EXPIRED.getMessage(),
                 Map.of(RESPONSE, ex.getMessage())
         );
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
